@@ -1,9 +1,11 @@
 program = { SOI ~ statement+ ~ &EOI }
 
-statement = { let_statement | expression_statement }
+statement = { let_statement | expression_statement | function_definition | block_statement }
+block_statement = { "{" ~ statement* ~ "}" }
 
 let_statement = { "let" ~ identifier ~ "=" ~ expression ~ ";" }
 expression_statement = { expression ~ ";" }
+function_definition = { "fn" ~ identifier ~ "(" ~ identifier_list ~ ")" ~ block_statement }
 
 expression = { term ~ ( ( star | slash | plus | minus ) ~ term )* }
 
@@ -16,7 +18,9 @@ term = { paren_expression | function_call | leaf }
 paren_expression = { "(" ~ expression ~ ")" }
 leaf = { integer | identifier }
 function_call = { identifier ~ "(" ~ expression_list ~ ")" }
+
 expression_list = { (expression ~ ( "," ~ expression )* )? }
+identifier_list = { (identifier ~ ( "," ~ identifier )* )? }
 
 identifier = @{ ( ASCII_ALPHA | "_" ) ~ ( ASCII_ALPHANUMERIC | "_" )* }
 integer = @{ ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }

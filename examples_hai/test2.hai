@@ -1,0 +1,8 @@
+fn test(a, b) {
+    let a = a;
+    let b = c;
+    a * b;
+}
+
+let d = e;
+let e = 12 * 35 + 15 * 2;
