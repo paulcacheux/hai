@@ -12,6 +12,10 @@ static INPUT: &str = "
 12 * 13 * 15;
 let a = 12;
 let b = 45 * b;
+let c = (12 * 3);
+func(a);
+func(a, b);
+func();
 ";
 
 fn main() {

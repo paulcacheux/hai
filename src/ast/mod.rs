@@ -65,6 +65,7 @@ impl Program {
         if let Some(expr) = self.get_expression(id) {
             match *expr {
                 Expression::BinOp { op, lhs, rhs } => visitor.visit_binop_expression(self, op, lhs, rhs),
+                Expression::FunctionCall { func, ref args } => visitor.visit_func_call(self, func, args),
                 Expression::Integer(i) => visitor.visit_integer(self, i),
                 Expression::Identifier(ref id) => visitor.visit_identifier(self, id),
             }
@@ -88,6 +89,10 @@ pub enum Expression {
         op: BinOp,
         lhs: ExpressionId,
         rhs: ExpressionId,
+    },
+    FunctionCall {
+        func: ExpressionId,
+        args: Vec<ExpressionId>,
     },
     Integer(i32),
     Identifier(String),

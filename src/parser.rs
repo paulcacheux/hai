@@ -48,16 +48,22 @@ pub fn convert_expression<'i>(pair: Pair<'i, Rule>, program: &mut ast::Program) 
 
     let pairs = pair.into_inner();
 
+    let program_mutex = std::sync::Mutex::new(program);
+
     let climber = PrecClimber::new(vec![
         Operator::new(Rule::plus, Assoc::Left) | Operator::new(Rule::minus, Assoc::Left),
         Operator::new(Rule::star, Assoc::Left) | Operator::new(Rule::slash, Assoc::Left)
     ]);
 
     let primary = |pair| {
-        convert_term(pair)
+        let program = &mut **program_mutex.lock().unwrap();
+
+        convert_term(pair, program)
     };
 
     let infix = |lhs, op: Pair<'i, Rule>, rhs| {
+        let program = &mut **program_mutex.lock().unwrap();
+        
         let op = match op.as_rule() {
             Rule::star => ast::BinOp::Mul,
             Rule::slash => ast::BinOp::Divide,
@@ -79,7 +85,43 @@ pub fn convert_expression<'i>(pair: Pair<'i, Rule>, program: &mut ast::Program) 
     climber.climb(pairs, primary, infix)
 }
 
-pub fn convert_term<'i>(pair: Pair<'i, Rule>) -> ast::Expression {
+pub fn convert_term<'i>(pair: Pair<'i, Rule>, program: &mut ast::Program) -> ast::Expression {
+    let inner = pair.into_inner().next().unwrap();
+    match inner.as_rule() {
+        Rule::leaf => convert_leaf(inner),
+        Rule::paren_expression => convert_paren_expression(inner, program),
+        Rule::function_call => convert_function_call(inner, program),
+        _ => unreachable!(),
+    }
+}
+
+pub fn convert_paren_expression<'i>(pair: Pair<'i, Rule>, program: &mut ast::Program) -> ast::Expression {
+    assert_eq!(pair.as_rule(), Rule::paren_expression);
+    let expression = pair.into_inner().next().unwrap();
+    convert_expression(expression, program)
+}
+
+pub fn convert_function_call<'i>(pair: Pair<'i, Rule>, program: &mut ast::Program) -> ast::Expression {
+    assert_eq!(pair.as_rule(), Rule::function_call);
+    let mut iter = pair.into_inner();
+    let func = convert_identifier(iter.next().unwrap());
+    let args = convert_expression_list(iter.next().unwrap(), program);
+
+    let func = program.create_expression(func);
+    let args = args.into_iter().map(|e| program.create_expression(e)).collect();
+
+    ast::Expression::FunctionCall {
+        func,
+        args
+    }
+}
+
+pub fn convert_expression_list<'i>(pair: Pair<'i, Rule>, program: &mut ast::Program) -> Vec<ast::Expression> {
+    assert_eq!(pair.as_rule(), Rule::expression_list);
+    pair.into_inner().map(|p| convert_expression(p, program)).collect()
+}
+
+pub fn convert_leaf<'i>(pair: Pair<'i, Rule>) -> ast::Expression {
     let inner = pair.into_inner().next().unwrap();
     match inner.as_rule() {
         Rule::integer => convert_integer(inner),

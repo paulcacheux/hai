@@ -56,6 +56,16 @@ impl Visitor for PrettyPrintVisitor {
         self.current_tab -= 1;
     }
 
+    fn visit_func_call(&mut self, program: &Program, func: ExpressionId, args: &[ExpressionId]) {
+        tab_pr!(self, "func_call");
+        self.current_tab += 1;
+        program.accept_expression_visitor(self, func);
+        for e in args {
+            program.accept_expression_visitor(self, *e);
+        }
+        self.current_tab -= 1;
+    }
+
     fn visit_integer(&mut self, _program: &Program, i: i32) {
         tab_pr!(self, "integer: {}", i);
     }

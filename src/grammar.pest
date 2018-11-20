@@ -12,7 +12,11 @@ slash = @{ "/" }
 plus = @{ "+" }
 minus = @{ "-" }
 
-term = { integer | identifier | ("(" ~ expression ~ ")") }
+term = { paren_expression | function_call | leaf }
+paren_expression = { "(" ~ expression ~ ")" }
+leaf = { integer | identifier }
+function_call = { identifier ~ "(" ~ expression_list ~ ")" }
+expression_list = { (expression ~ ( "," ~ expression )* )? }
 
 identifier = @{ ( ASCII_ALPHA | "_" ) ~ ( ASCII_ALPHANUMERIC | "_" )* }
 integer = @{ ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
