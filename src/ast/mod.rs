@@ -49,7 +49,7 @@ impl Program {
     }
 
     pub fn accept_program_visitor<V: visitor::Visitor>(&self, visitor: &mut V) {
-        visitor.visit_progam(self, &self.statements)
+        visitor.visit_program(self, &self.statements)
     }
 
     pub fn accept_statement_visitor<V: visitor::Visitor>(&self, visitor: &mut V, id: StatementId) {

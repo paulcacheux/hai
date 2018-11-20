@@ -1,7 +1,7 @@
 use super::*;
 
 pub trait Visitor: Sized {
-    fn visit_progam(&mut self, program: &Program, statements: &[StatementId]) {
+    fn visit_program(&mut self, program: &Program, statements: &[StatementId]) {
         for &s in statements {
             program.accept_statement_visitor(self, s)
         }
