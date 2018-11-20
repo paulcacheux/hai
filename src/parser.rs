@@ -13,7 +13,6 @@ pub fn convert_program<'i>(pair: Pair<'i, Rule>) -> ast::Program {
     let mut program = ast::Program::new();
 
     for pair in pair.into_inner() {
-        println!("{:?}", pair);
         let statement = convert_statement(pair, &mut program);
         program.create_append_statement(statement);
     }

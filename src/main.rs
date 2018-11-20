@@ -19,5 +19,7 @@ fn main() {
     let program_pair = pairs.next().unwrap();
     let program = parser::convert_program(program_pair);
 
-    println!("{:#?}", program);
+    let mut visitor = ast::pretty_print_visitor::PrettyPrintVisitor::new();
+
+    program.accept_program_visitor(&mut visitor);
 }

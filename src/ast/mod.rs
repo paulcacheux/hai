@@ -1,5 +1,8 @@
 use id_arena::{Arena, Id};
 
+pub mod visitor;
+pub mod pretty_print_visitor;
+
 type StatementId = Id<Statement>;
 type ExpressionId = Id<Expression>;
 
@@ -36,6 +39,38 @@ impl Program {
         let id = self.create_statement(statement);
         self.append_statement(id)
     }
+
+    pub fn get_statement(&self, id: StatementId) -> Option<&Statement> {
+        self.statement_arena.get(id)
+    }
+    
+    pub fn get_expression(&self, id: ExpressionId) -> Option<&Expression> {
+        self.expression_arena.get(id)
+    }
+
+    pub fn accept_program_visitor<V: visitor::Visitor>(&self, visitor: &mut V) {
+        visitor.visit_progam(self, &self.statements)
+    }
+
+    pub fn accept_statement_visitor<V: visitor::Visitor>(&self, visitor: &mut V, id: StatementId) {
+        if let Some(stmt) = self.get_statement(id) {
+            match *stmt {
+                Statement::LetStatement { ref identifier, expression } => visitor.visit_let_statement(self, identifier, expression),
+                Statement::ExpressionStatement(expr) => visitor.visit_expression_statement(self, expr)
+            }
+        }
+    }
+
+    pub fn accept_expression_visitor<V: visitor::Visitor>(&self, visitor: &mut V, id: ExpressionId) {
+        if let Some(expr) = self.get_expression(id) {
+            match *expr {
+                Expression::BinOp { op, lhs, rhs } => visitor.visit_binop_expression(self, op, lhs, rhs),
+                Expression::Integer(i) => visitor.visit_integer(self, i),
+                Expression::Identifier(ref id) => visitor.visit_identifier(self, id),
+            }
+        }
+    }
+
 }
 
 #[derive(Debug, Clone)]
