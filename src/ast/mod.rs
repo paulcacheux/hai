@@ -96,7 +96,7 @@ impl Program {
 pub enum Declaration {
     FunctionDeclaration {
         name: String,
-        parameters: Vec<String>,
+        parameters: Vec<(String, Type)>,
         statement: StatementId,
     },
 }
@@ -132,4 +132,11 @@ pub enum BinOp {
     Sub,
     Mul,
     Divide,
+}
+
+#[derive(Debug, Clone)]
+pub enum Type {
+    Unit,
+    Int,
+    Boolean,
 }

@@ -30,7 +30,7 @@ pub trait Visitor: Sized {
         &mut self,
         program: &Program,
         _name: &str,
-        _parameters: &[String],
+        _parameters: &[(String, Type)],
         statement: StatementId,
     ) {
         program.accept_statement_visitor(self, statement);

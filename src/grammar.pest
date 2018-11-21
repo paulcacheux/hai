@@ -1,7 +1,7 @@
 program = { SOI ~ declaration+ ~ &EOI }
 
 declaration = { function_declaration }
-function_declaration = { "fn" ~ identifier ~ "(" ~ identifier_list ~ ")" ~ block_statement }
+function_declaration = { "fn" ~ identifier ~ "(" ~ parameter_list ~ ")" ~ ( "->" ~ ty )? ~ block_statement }
 
 statement = { let_statement | expression_statement | block_statement }
 block_statement = { "{" ~ statement* ~ "}" }
@@ -22,10 +22,14 @@ leaf = { integer | identifier }
 function_call = { identifier ~ "(" ~ expression_list ~ ")" }
 
 expression_list = { (expression ~ ( "," ~ expression )* )? }
-identifier_list = { (identifier ~ ( "," ~ identifier )* )? }
+parameter_list = { (parameter ~ ( "," ~ parameter )* )? }
+parameter = { identifier ~ ":" ~ ty }
 
 identifier = @{ ( ASCII_ALPHA | "_" ) ~ ( ASCII_ALPHANUMERIC | "_" )* }
 integer = @{ ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
+
+ty = { "int" | "bool" | unit_ty }
+unit_ty = { "(" ~ ")" }
 
 WHITESPACE = _{ " " | "\t" | NEWLINE }
 block_comment = _{ "/*" ~ ( block_comment | !"*/" ~ ANY )* ~ "*/" }

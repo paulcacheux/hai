@@ -1,4 +1,4 @@
-fn test(a, b) {
+fn test(a: int, b: (  )) {
     let a = a;
     let b = c;
     a * b;

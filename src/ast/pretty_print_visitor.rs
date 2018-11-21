@@ -44,13 +44,13 @@ impl Visitor for PrettyPrintVisitor {
         &mut self,
         program: &Program,
         name: &str,
-        parameters: &[String],
+        parameters: &[(String, Type)],
         statement: StatementId,
     ) {
         tab_pr!(self, "function_def (name: {})", name);
         self.current_tab += 1;
-        for param in parameters {
-            tab_pr!(self, "param {}", param);
+        for &(ref param, ref ty) in parameters {
+            tab_pr!(self, "param ({}, {:?})", param, ty);
         }
 
         program.accept_statement_visitor(self, statement);
