@@ -2,11 +2,12 @@ pub mod builder;
 
 #[derive(Debug, Clone)]
 pub struct Module {
-    functions: Vec<Function>,
+    pub functions: Vec<Function>,
 }
 
 #[derive(Debug, Clone)]
 pub struct Function {
+    name: String,
     params: Vec<Type>,
     variables: Vec<Type>,
     basic_blocks: Vec<BasicBlock>,
@@ -21,7 +22,8 @@ pub struct BasicBlock {
 #[derive(Debug, Clone)]
 pub enum Statement {
     WithDestination(Value, Operation),
-    Operation(Operation)
+    Operation(Operation),
+    Literal(Literal),
 }
 
 #[derive(Debug, Clone)]
@@ -37,7 +39,7 @@ pub enum Operation {
 
 #[derive(Debug, Clone)]
 pub enum Terminator {
-    Return(Value)
+    Return(Value),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -48,6 +50,12 @@ pub struct Variable(u32);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Value(u32);
+
+#[derive(Debug, Clone)]
+pub enum Literal {
+    Int(i32),
+    Boolean(bool),
+}
 
 #[derive(Debug, Clone, Copy)]
 pub enum Type {

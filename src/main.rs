@@ -19,6 +19,8 @@ fn main() {
     let program = parser::convert_program(program_pair);
 
     let mut visitor = ast::pretty_print_visitor::PrettyPrintVisitor::new();
-
     program.accept_program_visitor(&mut visitor);
+
+    let module = convertor::ast2ir(&program);
+    println!("{:#?}", module);
 }

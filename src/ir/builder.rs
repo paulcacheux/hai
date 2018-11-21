@@ -8,6 +8,7 @@ pub struct PreBasicBlock {
 
 #[derive(Debug, Clone)]
 pub struct FunctionBuilder {
+    name: String,
     params: Vec<Type>,
     variables: Vec<Type>,
     bbs: Vec<PreBasicBlock>,
@@ -16,8 +17,9 @@ pub struct FunctionBuilder {
 }
 
 impl FunctionBuilder {
-    pub fn new(params: Vec<Type>) -> Self {
+    pub fn new(name: String, params: Vec<Type>) -> Self {
         FunctionBuilder {
+            name,
             params,
             variables: Vec::new(),
             bbs: vec![PreBasicBlock {
@@ -40,6 +42,7 @@ impl FunctionBuilder {
             .collect();
 
         Function {
+            name: self.name,
             params: self.params,
             variables: self.variables,
             basic_blocks,

@@ -3,8 +3,8 @@ use id_arena::{Arena, Id};
 pub mod pretty_print_visitor;
 pub mod visitor;
 
-type StatementId = Id<Statement>;
-type ExpressionId = Id<Expression>;
+pub type StatementId = Id<Statement>;
+pub type ExpressionId = Id<Expression>;
 
 #[derive(Debug)]
 pub struct Program {
