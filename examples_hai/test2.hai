@@ -4,5 +4,7 @@ fn test(a, b) {
     a * b;
 }
 
-let d = e;
-let e = 12 * 35 + 15 * 2;
+fn main() {
+    let d = e;
+    let e = 12 * 35 + 15 * 2;
+}

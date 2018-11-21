@@ -1,9 +1,9 @@
 use super::*;
 
 pub trait Visitor: Sized {
-    fn visit_program(&mut self, program: &Program, statements: &[StatementId]) {
-        for &s in statements {
-            program.accept_statement_visitor(self, s);
+    fn visit_program(&mut self, program: &Program, declarations: &[Declaration]) {
+        for decl in declarations {
+            program.accept_declaration_visitor(self, decl);
         }
     }
 
@@ -26,7 +26,7 @@ pub trait Visitor: Sized {
         program.accept_expression_visitor(self, expression)
     }
 
-    fn visit_function_definition(
+    fn visit_function_declaration(
         &mut self,
         program: &Program,
         _name: &str,

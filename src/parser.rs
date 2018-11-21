@@ -13,20 +13,62 @@ pub fn convert_program<'i>(pair: Pair<'i, Rule>) -> ast::Program {
     let mut program = ast::Program::new();
 
     for pair in pair.into_inner() {
-        let statement = convert_statement(pair, &mut program);
-        program.create_append_statement(statement);
+        let declaration = convert_declaration(pair, &mut program);
+        program.declarations.push(declaration);
     }
 
     program
 }
 
+pub fn convert_declaration<'i>(
+    pair: Pair<'i, Rule>,
+    program: &mut ast::Program,
+) -> ast::Declaration {
+    assert_eq!(pair.as_rule(), Rule::declaration);
+
+    let pair = pair.into_inner().next().unwrap();
+    match pair.as_rule() {
+        Rule::function_declaration => convert_function_declaration(pair, program),
+        _ => unreachable!(),
+    }
+}
+
+pub fn convert_function_declaration<'i>(
+    pair: Pair<'i, Rule>,
+    program: &mut ast::Program,
+) -> ast::Declaration {
+    assert_eq!(pair.as_rule(), Rule::function_declaration);
+
+    let mut iter = pair.into_inner();
+
+    let name = String::from(iter.next().unwrap().as_str());
+    let parameters = convert_identifier_list(iter.next().unwrap());
+
+    let statement = convert_block_statement(iter.next().unwrap(), program);
+    let statement = program.create_statement(statement);
+
+    ast::Declaration::FunctionDeclaration {
+        name,
+        parameters,
+        statement,
+    }
+}
+
+pub fn convert_identifier_list<'i>(pair: Pair<'i, Rule>) -> Vec<String> {
+    assert_eq!(pair.as_rule(), Rule::identifier_list);
+    pair.into_inner()
+        .map(|p| String::from(p.as_str()))
+        .collect()
+}
+
 pub fn convert_statement<'i>(pair: Pair<'i, Rule>, program: &mut ast::Program) -> ast::Statement {
+    assert_eq!(pair.as_rule(), Rule::statement);
+
     let statement_pair = pair.into_inner().next().unwrap();
     match statement_pair.as_rule() {
         Rule::expression_statement => convert_expression_statement(statement_pair, program),
         Rule::let_statement => convert_let_statement(statement_pair, program),
         Rule::block_statement => convert_block_statement(statement_pair, program),
-        Rule::function_definition => convert_function_definition(statement_pair, program),
         _ => unreachable!(),
     }
 }
@@ -73,34 +115,6 @@ pub fn convert_block_statement<'i>(
     }
 
     ast::Statement::BlockStatement(stmts)
-}
-
-pub fn convert_function_definition<'i>(
-    pair: Pair<'i, Rule>,
-    program: &mut ast::Program,
-) -> ast::Statement {
-    assert_eq!(pair.as_rule(), Rule::function_definition);
-
-    let mut iter = pair.into_inner();
-
-    let name = String::from(iter.next().unwrap().as_str());
-    let parameters = convert_identifier_list(iter.next().unwrap());
-
-    let statement = convert_block_statement(iter.next().unwrap(), program);
-    let statement = program.create_statement(statement);
-
-    ast::Statement::FunctionDefinition {
-        name,
-        parameters,
-        statement,
-    }
-}
-
-pub fn convert_identifier_list<'i>(pair: Pair<'i, Rule>) -> Vec<String> {
-    assert_eq!(pair.as_rule(), Rule::identifier_list);
-    pair.into_inner()
-        .map(|p| String::from(p.as_str()))
-        .collect()
 }
 
 pub fn convert_expression<'i>(pair: Pair<'i, Rule>, program: &mut ast::Program) -> ast::Expression {

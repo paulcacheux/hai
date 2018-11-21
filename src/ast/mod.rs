@@ -11,7 +11,7 @@ pub struct Program {
     statement_arena: Arena<Statement>,
     expression_arena: Arena<Expression>,
 
-    pub statements: Vec<StatementId>,
+    pub declarations: Vec<Declaration>,
 }
 
 impl Program {
@@ -19,7 +19,7 @@ impl Program {
         Program {
             statement_arena: Arena::new(),
             expression_arena: Arena::new(),
-            statements: Vec::new(),
+            declarations: Vec::new(),
         }
     }
 
@@ -31,15 +31,6 @@ impl Program {
         self.expression_arena.alloc(expression)
     }
 
-    pub fn append_statement(&mut self, id: StatementId) {
-        self.statements.push(id);
-    }
-
-    pub fn create_append_statement(&mut self, statement: Statement) {
-        let id = self.create_statement(statement);
-        self.append_statement(id)
-    }
-
     pub fn get_statement(&self, id: StatementId) -> Option<&Statement> {
         self.statement_arena.get(id)
     }
@@ -49,7 +40,21 @@ impl Program {
     }
 
     pub fn accept_program_visitor<V: visitor::Visitor>(&self, visitor: &mut V) {
-        visitor.visit_program(self, &self.statements)
+        visitor.visit_program(self, &self.declarations)
+    }
+
+    pub fn accept_declaration_visitor<V: visitor::Visitor>(
+        &self,
+        visitor: &mut V,
+        decl: &Declaration,
+    ) {
+        match *decl {
+            Declaration::FunctionDeclaration {
+                ref name,
+                ref parameters,
+                statement,
+            } => visitor.visit_function_declaration(self, name, parameters, statement),
+        }
     }
 
     pub fn accept_statement_visitor<V: visitor::Visitor>(&self, visitor: &mut V, id: StatementId) {
@@ -63,11 +68,6 @@ impl Program {
                 Statement::ExpressionStatement(expr) => {
                     visitor.visit_expression_statement(self, expr)
                 }
-                Statement::FunctionDefinition {
-                    ref name,
-                    ref parameters,
-                    statement,
-                } => visitor.visit_function_definition(self, name, parameters, statement),
             }
         }
     }
@@ -93,6 +93,15 @@ impl Program {
 }
 
 #[derive(Debug, Clone)]
+pub enum Declaration {
+    FunctionDeclaration {
+        name: String,
+        parameters: Vec<String>,
+        statement: StatementId,
+    },
+}
+
+#[derive(Debug, Clone)]
 pub enum Statement {
     BlockStatement(Vec<StatementId>),
     LetStatement {
@@ -100,11 +109,6 @@ pub enum Statement {
         expression: ExpressionId,
     },
     ExpressionStatement(ExpressionId),
-    FunctionDefinition {
-        name: String,
-        parameters: Vec<String>,
-        statement: StatementId,
-    },
 }
 
 #[derive(Debug, Clone)]

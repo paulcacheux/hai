@@ -22,11 +22,11 @@ impl PrettyPrintVisitor {
 }
 
 impl Visitor for PrettyPrintVisitor {
-    fn visit_program(&mut self, program: &Program, statements: &[StatementId]) {
+    fn visit_program(&mut self, program: &Program, declarations: &[Declaration]) {
         tab_pr!(self, "program");
         self.current_tab += 1;
-        for &s in statements {
-            program.accept_statement_visitor(self, s);
+        for decl in declarations {
+            program.accept_declaration_visitor(self, decl);
         }
         self.current_tab -= 1;
     }
@@ -40,7 +40,7 @@ impl Visitor for PrettyPrintVisitor {
         self.current_tab -= 1;
     }
 
-    fn visit_function_definition(
+    fn visit_function_declaration(
         &mut self,
         program: &Program,
         name: &str,

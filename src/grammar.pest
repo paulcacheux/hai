@@ -1,11 +1,13 @@
-program = { SOI ~ statement+ ~ &EOI }
+program = { SOI ~ declaration+ ~ &EOI }
 
-statement = { let_statement | expression_statement | function_definition | block_statement }
+declaration = { function_declaration }
+function_declaration = { "fn" ~ identifier ~ "(" ~ identifier_list ~ ")" ~ block_statement }
+
+statement = { let_statement | expression_statement | block_statement }
 block_statement = { "{" ~ statement* ~ "}" }
 
 let_statement = { "let" ~ identifier ~ "=" ~ expression ~ ";" }
 expression_statement = { expression ~ ";" }
-function_definition = { "fn" ~ identifier ~ "(" ~ identifier_list ~ ")" ~ block_statement }
 
 expression = { term ~ ( ( star | slash | plus | minus ) ~ term )* }
 
