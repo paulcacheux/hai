@@ -39,7 +39,10 @@ impl Program {
         self.expression_arena.get(id)
     }
 
-    pub fn accept_program_visitor<V: visitor::Visitor>(&self, visitor: &mut V) {
+    pub fn accept_program_visitor<V: visitor::Visitor>(
+        &self,
+        visitor: &mut V,
+    ) -> Option<V::ProgramItem> {
         visitor.visit_program(self, &self.declarations)
     }
 
@@ -47,7 +50,7 @@ impl Program {
         &self,
         visitor: &mut V,
         decl: &Declaration,
-    ) {
+    ) -> Option<V::DeclarationItem> {
         match *decl {
             Declaration::FunctionDeclaration {
                 ref name,
@@ -57,7 +60,11 @@ impl Program {
         }
     }
 
-    pub fn accept_statement_visitor<V: visitor::Visitor>(&self, visitor: &mut V, id: StatementId) {
+    pub fn accept_statement_visitor<V: visitor::Visitor>(
+        &self,
+        visitor: &mut V,
+        id: StatementId,
+    ) -> Option<V::StatementItem> {
         if let Some(stmt) = self.get_statement(id) {
             match *stmt {
                 Statement::BlockStatement(ref stmts) => visitor.visit_block_statement(self, stmts),
@@ -69,6 +76,8 @@ impl Program {
                     visitor.visit_expression_statement(self, expr)
                 }
             }
+        } else {
+            None
         }
     }
 
@@ -76,7 +85,7 @@ impl Program {
         &self,
         visitor: &mut V,
         id: ExpressionId,
-    ) {
+    ) -> Option<V::ExpressionItem> {
         if let Some(expr) = self.get_expression(id) {
             match *expr {
                 Expression::BinOp { op, lhs, rhs } => {
@@ -88,6 +97,8 @@ impl Program {
                 Expression::Integer(i) => visitor.visit_integer(self, i),
                 Expression::Identifier(ref id) => visitor.visit_identifier(self, id),
             }
+        } else {
+            None
         }
     }
 }
